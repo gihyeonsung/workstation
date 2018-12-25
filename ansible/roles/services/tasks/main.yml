@@ -1,0 +1,42 @@
+---
+- name: update and upgrade system
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: install nginx
+  apt:
+    name: nginx
+
+- name: install go
+  apt:
+    name: golang-go
+
+- name: install mosh
+  apt:
+    name: mosh
+
+- name: install mosh
+  apt:
+    name: exuberant-ctags
+
+- name: install gcc
+  apt:
+    name: gcc
+
+- name: install lua5.1
+  apt:
+    name: lua5.1
+
+- name: remove vim
+  apt:
+    name: vim
+    state: absent
+
+- name: install vim-nox
+  apt:
+    name: vim-nox
+
+- name: install ansible
+  apt:
+    name: ansible

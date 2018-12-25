@@ -1,0 +1,63 @@
+---
+- name: delete /tmp/dotfiles
+  file:
+    state: absent
+    path: "/tmp/dotfiles"
+
+- name: clone git dotfiles
+  git:
+    repo: https://github.com/joshrosso/dotfiles-linux.git
+    dest: /tmp/dotfiles
+
+- name: setup .aws directory
+  file:
+    path: /home/josh/.aws
+    state: directory
+
+- name: copy aws creds
+  copy:
+    src: ~/.aws/credentials
+    dest: /home/josh/.aws/credentials
+
+- name: copy .bashrc
+  copy:
+    remote_src: yes
+    src: /tmp/dotfiles/.bashrc
+    dest: /home/josh/
+
+- name: copy .vimrc
+  copy:
+    remote_src: yes
+    src: /tmp/dotfiles/.vimrc
+    dest: /home/josh/
+
+- name: setup .vim folder
+  file:
+    path: /home/josh/.vim/autoload
+    state: directory
+
+- name: download vim-plug
+  get_url:
+    dest: /home/josh/.vim/autoload/plug.vim
+    force: true
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+# TODO(joshrosso): hackish, should do in proper ansible way
+- name: remove vim colors
+  command: /bin/rm -rf /home/josh/.vim/colors
+
+# TODO(joshrosso): hackish, should do in proper ansible way
+- name: move vim colors
+  command: /bin/mv /tmp/dotfiles/.vim/colors /home/josh/.vim/
+
+# TODO(joshrosso): hackish, should do in proper ansible way
+- name: fix .vim permissions
+  command: /bin/chown -R josh:josh /home/josh/.vim
+
+- name: install vim plugins
+  become_user: josh
+  command: /usr/bin/vim +PlugInstall +qall
+
+- name: install go binaries for vim-go support
+  become_user: josh
+  command: /usr/bin/vim +GoInstallBinaries +qall

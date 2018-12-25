@@ -1,0 +1,43 @@
+---
+- name: create josh group
+  group:
+    name: josh
+    state: present
+
+- name: create josh user
+  user:
+    name: josh
+    groups: 
+    - josh
+    - sudo
+    password: "{{ user_password }}"
+    shell: /bin/bash
+
+- name: add public keys
+  authorized_key:
+    user: josh
+    key: "{{ lookup('file', '{{ public_key_location  }}') }}"
+
+- name: Allow josh passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^josh'
+    line: 'josh ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Add provisioning key to host
+  copy:
+    src: ~/.ssh/provisioning_key
+    dest: /home/josh/.ssh/provisioning_key
+    owner: josh
+    group: josh
+    mode: 0600
+
+- name: Add joshrosso key to host
+  copy:
+    src: ~/.ssh/joshrosso.pem
+    dest: /home/josh/.ssh/joshrosso.pem
+    owner: josh
+    group: josh
+    mode: 0600
